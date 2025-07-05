@@ -1,2 +1,5 @@
 recommender_system_experiments/data/
 qdrant_storage/
+recommender_system_experiments/src
+recommender_system_experiments/challange/
+**/.venv/
