@@ -1,0 +1,32 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Recommender system backend based on FastAPI."
+authors = [
+  { name = "Adam  Górski", email = "adamsebastiangorski@gmail.com" }
+]
+readme = "README.md"
+requires-python = "~=3.12"
+dependencies = [
+  "fastapi[standard]~=0.115.0",
+  "python-keycloak~=4.4.0",
+  "httpx~=0.27.2",
+  "pydantic~=2.9.2",
+  "pydantic-settings~=2.5.2",
+  "scikit-learn~=1.7.0",
+  "asyncio~=3.4.3",
+  "pymongo~=4.13.2",
+  "joblib~=1.5.1",
+  "qdrant-client~=1.14.3",
+  "beanie~=1.30.0",
+  "motor~=3.7.1",
+]
+
+[dependency-groups]
+dev = [
+    "tqdm>=4.67.1",
+    "isort",
+    "flake8",
+    "pytest",
+    "autopep8"
+]
