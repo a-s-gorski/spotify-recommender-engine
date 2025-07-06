@@ -8,7 +8,6 @@ class Settings(BaseSettings):
     qdrant_collection_name: str
 
     class Config:
-        env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "allow"
 

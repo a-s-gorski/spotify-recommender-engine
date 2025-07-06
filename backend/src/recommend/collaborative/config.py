@@ -7,7 +7,6 @@ class Settings(BaseSettings):
     mongo_max_neightbors: int = 500
 
     class Config:
-        env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "allow"
 

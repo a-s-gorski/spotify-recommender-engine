@@ -31,7 +31,6 @@ async def recommend_tracks_clustering(
     Recommend tracks for a given playlist name.
     """
     AuthController.protected_endpoint(credentials)
-    # return []
     return await clustering_service.recommend_tracks(playlist_name, k, n_neighbors)
 
 
@@ -82,5 +81,9 @@ async def recommend_tracks_hybrid(
         dict.fromkeys(
             collaborative_recommendations +
             clustering_recommendations))
+
+    print(f"Combined recommendations: {combined}")
+    logger.info(
+        f"Combined recommendations: {combined}")
 
     return combined[:k]
