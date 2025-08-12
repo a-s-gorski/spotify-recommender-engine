@@ -4,13 +4,18 @@ import time
 from typing import List
 from motor.motor_asyncio import AsyncIOMotorClient
 from collections import Counter
-
+import os
+from dotenv import find_dotenv, load_dotenv
 from beanie import Document, init_beanie
 from pydantic import Field
 
-MONGO_URI = "your_mongo_uri_here"  # Replace with your MongoDB URI
+env_file = find_dotenv()
+if env_file:
+    load_dotenv(env_file)
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://admin:secret@localhost:27017")
 DB_NAME = "spotify"
-MAX_NEIGHBORS = 500
+MAX_NEIGHBORS = 50
 TOP_K = 10
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -93,7 +98,11 @@ async def test_recommendation() -> None:
 
     query_uris = [
         "spotify:track:7ouMYWpwJ422jRcDASZB7P", 
-        "spotify:track:1f6zKZ0I1ChZ0zsZt4AZqW"
+        "spotify:track:1f6zKZ0I1ChZ0zsZt4AZqW",
+        "spotify:track:2xYxC1vTNrzGP1IzpOtevG",
+        "spotify:track:6bBccEe8gvwl6KJZf293Je",
+        "spotify:track:7e7lYBH4xPqBiYqlY04u9o",
+        "spotify:track:5bAw3HrcuaQvJ5fNuFD4wx", 
     ]
 
     total_start = time.perf_counter()

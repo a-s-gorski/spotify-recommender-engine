@@ -9,7 +9,7 @@ from tqdm import tqdm
 from anyio import Path
 
 # Configuration
-PLAYLIST_COUNT_THRESHOLD = 10000
+PLAYLIST_COUNT_THRESHOLD = 20000
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",

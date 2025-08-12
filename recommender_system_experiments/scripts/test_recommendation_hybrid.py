@@ -1,16 +1,22 @@
 import asyncio
 import logging
+import os
 import time
 from typing import List
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
+from dotenv import find_dotenv, load_dotenv
 
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from test_recommendation_clustering import recommend_clustering
+from test_recommendation_clustering_pgvector import recommend_clustering
 from test_recommendation_collaborative import recommend_collaborative
 
-MONGO_URI = "your_mongo_uri_here"  # Replace with your MongoDB URI
+env_file = find_dotenv()
+if env_file:
+    load_dotenv(env_file)
+
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://username:password@host:port/database")  # Replace with your MongoDB URI
 DB_NAME = "spotify"
 TOP_K = 10
 

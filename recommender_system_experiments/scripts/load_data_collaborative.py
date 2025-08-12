@@ -8,9 +8,17 @@ from beanie import Document, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from tqdm.asyncio import tqdm_asyncio  # async tqdm for async loops
 from tqdm import tqdm  # for sync loops
+from dotenv import find_dotenv, load_dotenv
+import os
+import random
+
+env_file = find_dotenv()
+if env_file:
+    load_dotenv(env_file)
 
 INPUT_PATH = Path("data/02_processed")
-MONGO_URI = "your_mongo_uri_here"  # Replace with your MongoDB URI
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://username:password@host:port/database")
+print(f"Using MongoDB URI: {MONGO_URI}")
 DB_NAME = "spotify"
 BATCH_SIZE = 1000
 
@@ -28,10 +36,6 @@ class Playlist(Document):
 
     class Settings:
         name = "playlists"
-        indexes = [
-            [("tracks", 1)],
-            [("name", 1)]
-        ]
 
 
 class Track(Document):
@@ -84,6 +88,7 @@ async def load_data_to_mongo(
             await Track.insert_many(batch)
 
     playlist_docs = [Playlist(name=pl['name'], tracks=pl['tracks']) for pl in filtered_playlists]
+    playlist_docs = random.sample(playlist_docs, k = int(0.2 * len(playlist_docs)))
 
     total_batches = (len(playlist_docs) + batch_size - 1) // batch_size
     logging.info(f"Inserting {len(playlist_docs)} playlists in {total_batches} batches...")
@@ -107,7 +112,13 @@ async def main():
     filtered_playlists = filter_valid_tracks(playlists, valid_tracks_dict)
 
     logging.info("Connecting to MongoDB...")
-    client = AsyncIOMotorClient(MONGO_URI)
+    client = AsyncIOMotorClient(MONGO_URI,
+                                serverSelectionTimeoutMS=1200000,  # 120s to select server
+                                connectTimeoutMS=1200000,          # 60s to establish connection
+                                socketTimeoutMS=1200000,           # 60s for read/write socket operations
+                                maxPoolSize=100,                 # (Optional) Increase pool size
+                                waitQueueTimeoutMS=600000         # (Optional) How long to wait for a connection from pool
+                                )
 
     logging.info("Initializing Beanie ODM...")
     await init_beanie(database=client[DB_NAME], document_models=[Playlist, Track])
