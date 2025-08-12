@@ -1,4 +1,8 @@
 package com.example.authbackend.payload.requests;
 
-public class LoginRequest {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginRequest(
+    @NotBlank String username,
+    @NotBlank String password
+) {}

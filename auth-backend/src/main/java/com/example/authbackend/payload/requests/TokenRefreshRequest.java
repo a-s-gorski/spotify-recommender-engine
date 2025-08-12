@@ -1,4 +1,7 @@
 package com.example.authbackend.payload.requests;
 
-public class TokenRefreshRequest {
-}
+import jakarta.validation.constraints.NotBlank;
+
+public record TokenRefreshRequest(
+    @NotBlank String refreshToken
+) {}
