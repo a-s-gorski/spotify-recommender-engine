@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   Typography,
   Button,
   Box,
-  Grid,
   CssBaseline,
   createTheme,
   ThemeProvider,
@@ -31,6 +30,7 @@ export default function SpotifyProfile() {
   const [playlistTitle, setPlaylistTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     async function tryFetchProfile() {
@@ -210,7 +210,7 @@ export default function SpotifyProfile() {
         <ProfileHeader profile={profile} />
 
         <Box my={4}>
-          <TrackList title="Recently Played Tracks" tracks={recentlyPlayed} layout="grid" />
+          <TrackList title="Recently Played Tracks" tracks={recentlyPlayed} />
         </Box>
 
         {recentlyPlayed.length > 0 && (
@@ -224,7 +224,7 @@ export default function SpotifyProfile() {
 
         {recommendedTracks.length > 0 && (
           <Box my={4}>
-            <TrackList title="Recommended Tracks" tracks={recommendedTracks} layout="grid" />
+            <TrackList title="Recommended Tracks" tracks={recommendedTracks}  />
             <PlaylistCreator
               playlistTitle={playlistTitle}
               setPlaylistTitle={setPlaylistTitle}

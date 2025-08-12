@@ -1,4 +1,3 @@
-import React from "react";
 import { Box, Slider, Typography } from "@mui/material";
 
 interface Props {
@@ -17,7 +16,7 @@ export default function RecommendationSlider({ value, onChange, max }: Props) {
         min={1}
         max={max}
         value={value}
-        onChange={(e, newValue) => onChange(newValue as number)}
+        onChange={(_, newValue) => onChange(newValue as number)}
         valueLabelDisplay="auto"
       />
     </Box>

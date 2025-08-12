@@ -1,0 +1,16 @@
+<!-- public/popup-callback.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      window.onload = function () {
+        if (window.opener) {
+          window.opener.postMessage('kc-auth-success', window.location.origin);
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <p>Logging in...</p>
+  </body>
+</html>

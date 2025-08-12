@@ -21,3 +21,7 @@ dist/
 *.pkl
 
 .idea/
+auth-backend/.mvn/
+cert/
+keycloak/
+nginx_tutorial/

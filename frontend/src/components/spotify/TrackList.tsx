@@ -1,12 +1,14 @@
-import React from "react";
 import {
   Typography,
-  Grid,
   Card,
   CardContent,
   CardMedia,
   Box,
 } from "@mui/material";
+
+import Grid from "@mui/material/Grid";
+import type { OverridableComponent } from "@mui/material/OverridableComponent";
+import type { GridTypeMap } from "@mui/material/Grid";
 
 interface Track {
   trackUri: string;
@@ -16,6 +18,9 @@ interface Track {
   trackName: string;
 }
 
+// Type alias for Grid using default component "div"
+const GridItem: OverridableComponent<GridTypeMap<{}, "div">> = Grid;
+
 export default function TrackList({ title, tracks }: { title: string; tracks: Track[] }) {
   return (
     <Box>
@@ -24,7 +29,14 @@ export default function TrackList({ title, tracks }: { title: string; tracks: Tr
       </Typography>
       <Grid container spacing={1}>
         {tracks.slice(0, 20).map((track) => (
-          <Grid item xs={6} sm={4} md={2} lg={1.5} key={track.trackUri}>
+          <GridItem
+            // item
+            // xs={6}
+            // sm={4}
+            // md={2}
+            sx={{ flexBasis: "12.5%", maxWidth: "12.5%" }}
+            key={track.trackUri}
+          >
             <Card
               sx={{
                 height: "100%",
@@ -55,7 +67,7 @@ export default function TrackList({ title, tracks }: { title: string; tracks: Tr
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </GridItem>
         ))}
       </Grid>
     </Box>

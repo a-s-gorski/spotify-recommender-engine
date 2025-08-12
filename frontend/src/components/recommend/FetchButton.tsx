@@ -1,4 +1,3 @@
-import React from "react";
 import { Button, CircularProgress, Box } from "@mui/material";
 
 interface Props {

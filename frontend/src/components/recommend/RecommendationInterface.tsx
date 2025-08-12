@@ -1,103 +1,103 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Typography } from "@mui/material";
-import { useKeycloak } from "../../KeycloakProvider";
+import { useAuth } from "../../AuthProvider";
 import PlaylistNameInput from "./PlaylistNameInput";
 import StrategySelector from "./StrategySelector";
 import RecommendationSlider from "./RecommendationSlider";
 import FetchButton from "./FetchButton";
 
-const backendUrl: string = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const backendUrl: string = import.meta.env.VITE_BACKEND_URL || "http://localhost:8080";
 
 interface Props {
-    trackUris: string[];
-    onRecommendationsReceived: (uris: string[]) => void;
+  trackUris: string[];
+  onRecommendationsReceived: (uris: string[]) => void;
 }
 
 export default function RecommendationInterface({ trackUris, onRecommendationsReceived }: Props) {
-    const { keycloak, authenticated, loading } = useKeycloak();
-    const [playlistName, setPlaylistName] = useState("");
-    const [recommendationLimit, setRecommendationLimit] = useState(10);
-    const [recommendationStrategy, setRecommendationStrategy] = useState("hybrid");
-    const [loadingRecs, setLoadingRecs] = useState(false);
+  const { authFetch } = useAuth();
+  const [playlistName, setPlaylistName] = useState("");
+  const [recommendationLimit, setRecommendationLimit] = useState(10);
+  const [recommendationStrategy, setRecommendationStrategy] = useState("hybrid");
+  const [loadingRecs, setLoadingRecs] = useState(false);
 
-    const maxRecommendations = Math.max(trackUris.length, 1);
+  const maxRecommendations = Math.max(trackUris.length, 1);
 
-    const fetchRecommendations = async () => {
-        setLoadingRecs(true);
-        try {
-            await keycloak.updateToken(30);
+  const fetchRecommendations = async () => {
+    setLoadingRecs(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000);
 
-            const params = new URLSearchParams();
+    try {
+      const params = new URLSearchParams();
 
-            const isClustering = recommendationStrategy === "clustering";
-            const isCollaborative = recommendationStrategy === "collaborative";
-            const isHybrid = recommendationStrategy === "hybrid";
+      const isClustering = recommendationStrategy === "clustering";
+      const isHybrid = recommendationStrategy === "hybrid";
 
-            if (isClustering || isHybrid) {
-                params.append("playlist_name", playlistName);
-            }
+      if (isClustering || isHybrid) {
+        params.append("playlistName", playlistName);
+        params.append("nNeighbors", "10");
+      }
 
-            if (!isClustering) {
-                trackUris.forEach(uri => params.append("query_uris", uri));
-            }
+      if (!isClustering) {
+        trackUris.forEach(uri => {
+          params.append("queryUris", uri);
+        });
+      }
 
-            params.append("k", recommendationLimit.toString());
+      params.append("k", recommendationLimit.toString());
 
-            if (isClustering || isHybrid) {
-                params.append("n_neighbors", "10");
-            }
+      const endpointMap = {
+        clustering: `${backendUrl}/api/recommendations/clustering`,
+        collaborative: `${backendUrl}/api/recommendations/collaborative`,
+        hybrid: `${backendUrl}/api/recommendations/hybrid`,
+      };
 
-            const endpointMap = {
-                clustering: `${backendUrl}/recommend/recommend-clustering`,
-                collaborative: `${backendUrl}/recommend/recommend-collaborative`,
-                hybrid: `${backendUrl}/recommend/recommend-hybrid`,
-            };
+      const endpoint = endpointMap[recommendationStrategy as keyof typeof endpointMap];
 
-            const endpoint = endpointMap[recommendationStrategy as keyof typeof endpointMap];
+      const response = await authFetch(`${endpoint}?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        signal: controller.signal,
+      });
 
-            const response = await fetch(`${endpoint}?${params.toString()}`, {
-                headers: {
-                    Authorization: `Bearer ${keycloak.token}`,
-                },
-            });
+      if (!response.ok) throw new Error(`Failed to fetch from ${endpoint}`);
 
-            if (!response.ok) throw new Error(`Failed to fetch from ${endpoint}`);
+      const uris: string[] = await response.json();
+      onRecommendationsReceived(uris);
+    } catch (err) {
+      if ((err as Error).name === "AbortError") {
+        console.error("Recommendation fetch aborted due to timeout.");
+      } else {
+        console.error("Recommendation fetch failed", err);
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      setLoadingRecs(false);
+    }
+  };
 
-            const uris: string[] = await response.json();
-            onRecommendationsReceived(uris);
-        } catch (err) {
-            console.error("Recommendation fetch failed", err);
-        } finally {
-            setLoadingRecs(false);
-        }
-    };
+  return (
+    <Box mt={4}>
+      <Typography variant="h6" gutterBottom>
+        Generate Recommendations
+      </Typography>
 
-    if (loading) return <Typography>Loading...</Typography>;
-
-    return (
-        <Box mt={4}>
-            <Typography variant="h6" gutterBottom>
-                Generate Recommendations
-            </Typography>
-
-            {authenticated ? (
-                <>
-                    <PlaylistNameInput value={playlistName} onChange={setPlaylistName} />
-                    <StrategySelector value={recommendationStrategy} onChange={setRecommendationStrategy} />
-                    <RecommendationSlider
-                        value={recommendationLimit}
-                        onChange={setRecommendationLimit}
-                        max={maxRecommendations}
-                    />
-                    <FetchButton
-                        loading={loadingRecs}
-                        disabled={!trackUris.length}
-                        onClick={fetchRecommendations}
-                    />
-                </>
-            ) : (
-                <Typography color="textSecondary">Please log in to see recommendations.</Typography>
-            )}
-        </Box>
-    );
+      <>
+        <PlaylistNameInput value={playlistName} onChange={setPlaylistName} />
+        <StrategySelector value={recommendationStrategy} onChange={setRecommendationStrategy} />
+        <RecommendationSlider
+          value={recommendationLimit}
+          onChange={setRecommendationLimit}
+          max={maxRecommendations}
+        />
+        <FetchButton
+          loading={loadingRecs}
+          disabled={!trackUris.length}
+          onClick={fetchRecommendations}
+        />
+      </>
+    </Box>
+  );
 }

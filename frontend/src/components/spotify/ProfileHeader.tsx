@@ -1,4 +1,3 @@
-import React from "react";
 import { Avatar, Typography, Box } from "@mui/material";
 
 interface ProfileHeaderProps {
