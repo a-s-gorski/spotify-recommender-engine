@@ -1,1 +1,0 @@
-autopep8 --diff --aggressive --aggressive --recursive src

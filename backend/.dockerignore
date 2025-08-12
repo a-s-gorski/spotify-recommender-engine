@@ -1,9 +1,0 @@
-.env
-.env.example
-README.md
-__pycache__/
-.venv/
-*.pyc
-*.pyo
-*.pyd
-.Python
