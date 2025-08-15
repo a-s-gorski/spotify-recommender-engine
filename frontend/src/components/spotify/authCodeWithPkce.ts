@@ -1,4 +1,7 @@
 // authCodeWithPkce.ts
+
+const redirectURI: string = import.meta.env.VITE_SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:5173';
+
 export async function redirectToAuthCodeFlow(clientId: string) {
   const verifier = generateCodeVerifier(128);
   const challenge = await generateCodeChallenge(verifier);
@@ -8,7 +11,7 @@ export async function redirectToAuthCodeFlow(clientId: string) {
   const params = new URLSearchParams({
     client_id: clientId,
     response_type: "code",
-    redirect_uri: "http://127.0.0.1:5173",
+    redirect_uri: redirectURI,
     scope: "user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played playlist-modify-private playlist-modify-public",
     code_challenge_method: "S256",
     code_challenge: challenge,
@@ -24,7 +27,7 @@ export async function getAccessToken(clientId: string, code: string): Promise<st
   const body = new URLSearchParams({
     grant_type: "authorization_code",
     code,
-    redirect_uri: "http://127.0.0.1:5173",
+    redirect_uri: redirectURI,
     client_id: clientId,
     code_verifier: verifier,
   });
